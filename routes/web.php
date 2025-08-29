@@ -11,6 +11,9 @@ use App\Models\Product;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LoadRequestController;
+use App\Http\Controllers\TokenController;
 
 Route::get('/', function () {
     return Auth::check() ? redirect()->route('index') : redirect()->route('login');
@@ -44,16 +47,32 @@ Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.
 
 Route::get('/kiosk', [KioskController::class, 'index'])->name('kiosk.index');
 
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
+Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+
 
 
 Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 
-
-
+Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 
 Route::get('/reset_password', fn() => view('reset_password'))->name('reset_password');
+
+Route::prefix('admin')->group(function() {
+    // Load Requests
+    Route::get('load-requests', [LoadRequestController::class,'index']);
+    Route::post('load-requests/{id}/approve', [LoadRequestController::class,'approve']);
+    Route::post('load-requests/{id}/reject', [LoadRequestController::class,'reject']);
+
+    // Tokens
+    Route::get('tokens', [TokenController::class,'index']);
+    Route::post('tokens/mint', [TokenController::class,'mint']);
+    Route::post('tokens/burn', [TokenController::class,'burn']);
+    Route::post('tokens/transfer', [TokenController::class,'transfer']);
+});
+
 
 require __DIR__ . '/auth.php';

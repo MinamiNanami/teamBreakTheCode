@@ -1,399 +1,187 @@
-{{-- resources/views/kiosk.blade.php --}}
-@php
-use Illuminate\Support\Str;
-@endphp
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jariel's Peak - Kiosk</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="{{ asset('css/kiosk.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel - Jariel's Peak</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <style>
-        /* Centralized modal */
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .modal .close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .cart-items-modal .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 6px 0;
-        }
-
-        .cart-item button {
-            background: none;
-            border: none;
-            font-size: 16px;
-            margin: 0 2px;
-            cursor: pointer;
-        }
-
-        /* New product button */
-        .new-product-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-            margin: 30px auto;
-            display: block;
-        }
-
-        .new-product-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .new-product-btn i {
-            font-size: 18px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/admin-style.css') }}" />
 </head>
-
 <body>
-    <header>
-        <div class="header-content">
-            <div class="logo"><i class="fas fa-leaf"></i>
-                <h1>JARIEL'S PEAK</h1>
-            </div>
-            <button class="cart-btn"><i class="fas fa-shopping-cart"></i> Cart <span class="cart-count">0</span></button>
-        </div>
-    </header>
+<div class="admin-container">
 
-    <div class="main-content">
-        <!-- Menu Section -->
-        <div class="menu-section">
-            <div class="menu-categories">
-                <button class="category-btn active" data-category="all">All</button>
-                <button class="category-btn" data-category="food">Food</button>
-                <button class="category-btn" data-category="drinks">Drinks</button>
-                <button class="category-btn" data-category="snacks">Snacks</button>
-                <button class="category-btn" data-category="desserts">Desserts</button>
-            </div>
-            <div class="menu-items">
-                @foreach($products as $category => $items)
-                @foreach($items as $p)
-                @php
-                $pName = $p->name ?? 'Item';
-                $pDesc = $p->description ?? '';
-                $pPrice = $p->price ?? 0;
-                $pId = $p->id ?? Str::slug($pName);
-                $pImg = !empty($p->image)?asset('storage/'.$p->image):asset('images/no-image.png');
-                $catSlug = Str::slug($category);
-                @endphp
-                <div class="menu-item" data-category="{{ $catSlug }}">
-                    <div class="menu-item-img" style="background-image:url('{{ $pImg }}');"></div>
-                    <div class="menu-item-info">
-                        <div class="menu-item-name">{{ $pName }}</div>
-                        <div class="menu-item-desc">{{ $pDesc }}</div>
-                        <div class="menu-item-bottom">
-                            <span class="menu-item-price">₱{{ number_format((float)$pPrice,2) }}</span>
-                            <button class="add-to-cart" data-id="{{ $pId }}" data-name="{{ $pName }}" data-price="{{ (float)$pPrice }}"><i class="fas fa-plus"></i></button>
-                        </div>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Jariel's Peak</h2>
+            <button id="mobile-menu-toggle" class="mobile-menu-toggle">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="active" data-section="dashboard"><a href="#">Dashboard Summary</a></li>
+            <li data-section="users-section"><a href="#">Manage Users</a></li>
+            <li data-section="product-management"><a href="#">Manage Products</a></li>
+            <li data-section="pos"><a href="#">Sales Dashboard</a></li>
+            <li data-section="transactions"><a href="#">Transactions</a></li>
+            <li data-section="inventory"><a href="#">Inventory Management</a></li>
+            <li data-section="wallet"><a href="#">Wallet Management</a></li>
+            <li data-section="load-approval"><a href="#">Load Request Approval</a></li>
+            <li data-section="blockchain-section"><a href="#">Blockchain & Tokens</a></li>
+            <li data-section="logout"><a href="#">Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Dashboard -->
+        <section id="dashboard" class="content-section active">
+            <h1>Dashboard Summary</h1>
+            <div class="dashboard-container">
+                <div class="dashboard-left">
+                    <div class="cards">
+                        <div class="card"><h3>Total Users</h3><p id="total-users">0</p></div>
+                        <div class="card"><h3>Total Products</h3><p id="total-products">0</p></div>
+                        <div class="card"><h3>Total Orders</h3><p id="total-orders">0</p></div>
+                        <div class="card"><h3>Total Token Transactions</h3><p id="total-transactions">0</p></div>
                     </div>
                 </div>
-                @endforeach
-                @endforeach
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- New Product Modal -->
-    <div id="newProductModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeNewProductModal()">&times;</span>
-            <h2>Add New Product</h2>
-            <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <label>Name</label>
-                <input type="text" name="name" required>
-                <label>Price</label>
-                <input type="number" name="price" step="0.01" required>
-                <label>Category</label>
-                <select name="category" required>
-                    <option value="">-- Select Category --</option>
-                    <option value="food">Food</option>
-                    <option value="drinks">Drinks</option>
-                    <option value="snacks">Snacks</option>
-                    <option value="desserts">Desserts</option>
-                </select>
-                <label>Image</label>
-                <input type="file" name="image">
-                <button type="submit">Save</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Cart Modal -->
-    <div id="cartModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeCartModal()">&times;</span>
-            <h2>Your Cart</h2>
-            <div class="cart-items-modal">
-                <p class="empty-cart">No items added yet.</p>
+        <!-- Manage Users -->
+        <section id="users-section" class="content-section hidden">
+            <h2>Manage Users</h2>
+            <button id="create-user-btn">+ Create User</button>
+            <div class="table-container">
+                <table id="usersTable">
+                    <thead>
+                    <tr>
+                        <th>Full Name</th><th>Email</th><th>Username</th><th>Role</th><th>Created At</th><th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="usersTableBody"></tbody>
+                </table>
             </div>
-            <div class="cart-total-modal" style="display:none;"><span>Total:</span> <span class="total-price-modal">₱0.00</span></div>
-            <button class="checkout-btn-modal" disabled>Checkout</button>
-        </div>
-    </div>
+        </section>
 
-    <!-- Checkout Form Modal -->
-    <div id="checkoutModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close" onclick="closeCheckoutModal()">&times;</span>
-            <h2>Checkout</h2>
-            <form id="checkoutForm">
-                <label>Customer Name</label>
-                <input type="text" name="customer_name" required>
+        <!-- Manage Products -->
+        <section id="product-management" class="content-section hidden">
+            <h2>Manage Products</h2>
+            <button id="add-product-btn">+ Add Product</button>
+            <div class="table-container">
+                <table id="productTable">
+                    <thead>
+                    <tr>
+                        <th>#</th><th>Name</th><th>Category</th><th>Price</th><th>Image</th><th>Status</th><th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="product-table-body"></tbody>
+                </table>
+            </div>
+        </section>
 
-                <label>Order Type</label>
-                <select name="order_type" id="orderType" required>
-                    <option value="">-- Select Order Type --</option>
-                    <option value="dine_in">Dine In</option>
-                    <option value="take_out">Take Out</option>
-                </select>
+        <!-- Sales Dashboard -->
+        <section id="pos" class="content-section hidden">
+            <h2>Sales Dashboard</h2>
+            <div id="sales-chart-container"></div>
+        </section>
 
-                <label id="tableLabel" style="display:none;">Table Number</label>
-                <input type="text" name="table_number" id="tableNumber" style="display:none;">
+        <!-- Transactions -->
+        <section id="transactions" class="content-section hidden">
+            <h2>Transactions</h2>
+            <table id="transactions-table">
+                <thead>
+                <tr><th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Date</th></tr>
+                </thead>
+                <tbody id="transactions-tbody"></tbody>
+            </table>
+        </section>
 
-                <label>Payment Method</label>
-                <select name="payment_method" required>
-                    <option value="">-- Select Payment Method --</option>
-                    <option value="cash">Cash</option>
-                    <option value="gcash">GCash</option>
-                    <option value="card">Card</option>
-                </select>
+        <!-- Inventory -->
+        <section id="inventory" class="content-section hidden">
+            <h2>Inventory Management</h2>
+            <button id="add-ingredient-btn">+ Add Ingredient</button>
+            <table id="inventory-table">
+                <thead>
+                <tr><th>Ingredient Name</th><th>Stock</th><th>Unit</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="inventory-tbody"></tbody>
+            </table>
+        </section>
 
-                <button type="submit">Place Order</button>
+        <!-- Wallet Management -->
+        <section id="wallet" class="content-section hidden">
+            <h2>Wallet Management</h2>
+            <div id="wallet-list"></div>
+        </section>
+
+        <!-- Load Request Approval -->
+        <section id="load-approval" class="content-section hidden">
+            <h2>Load Request Approval</h2>
+            <table id="load-requests-table">
+                <thead>
+                <tr><th>User</th><th>Email</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="load-requests-tbody"></tbody>
+            </table>
+
+            <!-- Modal -->
+            <div id="approval-modal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close-btn" id="close-approval-modal">&times;</span>
+                    <h3>Process Load Request</h3>
+                    <div>
+                        <label>User:</label> <span id="modal-user-name"></span><br>
+                        <label>Email:</label> <span id="modal-user-email"></span><br>
+                        <label>Amount:</label> <span id="modal-amount"></span><br>
+                        <label>Date:</label> <span id="modal-request-date"></span><br>
+                    </div>
+                    <textarea id="approval-notes" placeholder="Add notes..."></textarea>
+                    <button id="approve-request-btn">✅ Approve</button>
+                    <button id="reject-request-btn">❌ Reject</button>
+                    <button id="cancel-approval-btn">Cancel</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blockchain & Token Management -->
+        <section id="blockchain-section" class="content-section hidden">
+            <h2>Blockchain & Token Management</h2>
+            <div id="wallet-list"></div>
+            <form id="token-action-form">
+                <label>User:
+                    <select id="token-user">
+                        @foreach(\App\Models\User::all() as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </label>
+                <label>Amount:
+                    <input type="number" id="token-amount" min="1" step="1">
+                </label>
+                <label>Action:
+                    <select id="token-action">
+                        <option value="mint">Mint</option>
+                        <option value="burn">Burn</option>
+                    </select>
+                </label>
+                <button type="submit">Execute</button>
             </form>
-        </div>
-    </div>
+        </section>
 
-    <script>
-        // Modal functions
-        function openNewProductModal(e) {
-            e.preventDefault();
-            document.getElementById('newProductModal').style.display = 'flex';
-        }
+        <!-- Logout -->
+        <section id="logout" class="content-section hidden">
+            <h2>Logout</h2>
+            <button id="confirm-logout-btn">Yes, Logout</button>
+            <button id="cancel-logout-btn">Cancel</button>
+        </section>
 
-        function closeNewProductModal() {
-            document.getElementById('newProductModal').style.display = 'none';
-        }
+    </main>
+</div>
 
-        // Cart modal
-        const cartBtn = document.querySelector('.cart-btn');
-        const cartModal = document.getElementById('cartModal');
-        const cartItemsModal = cartModal.querySelector('.cart-items-modal');
-        const totalPriceModal = cartModal.querySelector('.total-price-modal');
-        const cartTotalModal = cartModal.querySelector('.cart-total-modal');
-        const checkoutBtnModal = cartModal.querySelector('.checkout-btn-modal');
-        cartBtn.addEventListener('click', () => {
-            cartModal.style.display = 'flex';
-            updateCartModal();
-        });
-
-        function closeCartModal() {
-            cartModal.style.display = 'none';
-        }
-
-        // Cart logic
-        let cart = [];
-        const cartCountEl = document.querySelector('.cart-count');
-
-        // Update cart display
-        function updateCart() {
-            cartCountEl.textContent = cart.reduce((s, i) => s + i.qty, 0);
-            updateCartModal();
-        }
-
-        // Update modal content
-        function updateCartModal() {
-            cartItemsModal.innerHTML = '';
-            if (cart.length === 0) {
-                cartItemsModal.innerHTML = '<p class="empty-cart">No items added yet.</p>';
-                cartTotalModal.style.display = 'none';
-                checkoutBtnModal.disabled = true;
-                return;
-            }
-            let total = 0;
-            cart.forEach((item, index) => {
-                total += item.price * item.qty;
-                const div = document.createElement('div');
-                div.classList.add('cart-item');
-                div.innerHTML = `
-                    <span>${item.name}</span>
-                    <span>
-                        <button onclick="changeQty(${index},-1)">-</button>
-                        ${item.qty}
-                        <button onclick="changeQty(${index},1)">+</button>
-                        <button onclick="removeItem(${index})"><i class="fas fa-trash"></i></button>
-                    </span>
-                    <span>₱${(item.price*item.qty).toFixed(2)}</span>
-                `;
-                cartItemsModal.appendChild(div);
-            });
-            totalPriceModal.textContent = "₱" + total.toFixed(2);
-            cartTotalModal.style.display = 'flex';
-            checkoutBtnModal.disabled = false;
-        }
-
-        // Change quantity
-        function changeQty(index, delta) {
-            cart[index].qty += delta;
-            if (cart[index].qty <= 0) cart.splice(index, 1);
-            updateCart();
-        }
-
-        // Remove item
-        function removeItem(index) {
-            cart.splice(index, 1);
-            updateCart();
-        }
-
-        // Add to cart
-        document.querySelectorAll('.add-to-cart').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.dataset.id,
-                    name = btn.dataset.name,
-                    price = parseFloat(btn.dataset.price);
-                let existing = cart.find(i => i.id === id);
-                if (existing) existing.qty++;
-                else cart.push({
-                    id,
-                    name,
-                    price,
-                    qty: 1
-                });
-                updateCart();
-            });
-        });
-
-        // Category filter
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const category = btn.dataset.category;
-                document.querySelectorAll('.menu-item').forEach(item => {
-                    item.style.display = (category === 'all' || item.dataset.category === category) ? 'block' : 'none';
-                });
-            });
-        });
-
-        // Checkout Form Modal
-        const checkoutFormModal = document.getElementById('checkoutModal');
-        const checkoutForm = document.getElementById('checkoutForm');
-        const tableInput = document.getElementById('tableNumber');
-        const tableLabel = document.getElementById('tableLabel');
-        const orderTypeSelect = document.getElementById('orderType');
-
-        orderTypeSelect.addEventListener('change', () => {
-            if (orderTypeSelect.value === 'dine_in') {
-                tableInput.style.display = 'block';
-                tableLabel.style.display = 'block';
-                tableInput.required = true;
-            } else {
-                tableInput.style.display = 'none';
-                tableLabel.style.display = 'none';
-                tableInput.required = false;
-            }
-        });
-
-        function closeCheckoutModal() {
-            checkoutFormModal.style.display = 'none';
-        }
-
-        checkoutBtnModal.addEventListener('click', () => {
-            if (cart.length === 0) return;
-            checkoutFormModal.style.display = 'flex';
-        });
-
-        checkoutForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(checkoutForm);
-            const data = {
-                customer_name: formData.get('customer_name'),
-                order_type: formData.get('order_type'),
-                table_number: formData.get('table_number') || null,
-                payment_method: formData.get('payment_method'),
-                items: cart,
-                total: cart.reduce((s, i) => s + i.price * i.qty, 0)
-            };
-
-            checkoutForm.querySelector('button[type="submit"]').disabled = true;
-            checkoutForm.querySelector('button[type="submit"]').textContent = "Processing...";
-
-            try {
-                const response = await fetch("{{ route('orders.store') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify(data)
-                });
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message);
-                    cart = [];
-                    updateCart();
-                    closeCheckoutModal();
-                    closeCartModal();
-                } else {
-                    alert(result.message || "Failed to place order.");
-                }
-            } catch (err) {
-                console.error(err);
-                alert("Something went wrong while placing the order.");
-            } finally {
-                checkoutForm.querySelector('button[type="submit"]').disabled = false;
-                checkoutForm.querySelector('button[type="submit"]').textContent = "Place Order";
-            }
-        });
-    </script>
+<script src="{{ asset('js/admin-script.js') }}"></script>
+<script src="{{ asset('js/sales_dashboard.js') }}"></script>
 </body>
-
 </html>
