@@ -4,33 +4,41 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderItem;
 
 class OrderController extends Controller
 {
     public function store(Request $request)
     {
-        // Validate
         $validated = $request->validate([
-            'customer_name' => 'required|string|max:255',
-            'table_number'  => 'required|string|max:50',
-            'order_method'  => 'required|in:dine-in,take-out',
-            'payment_method'=> 'required|in:cash,token',
-            'cart'          => 'required',
+            'items' => 'required|array|min:1',
+            'total' => 'required|numeric',
         ]);
 
-        // Decode cart JSON
-        $cart = json_decode($validated['cart'], true);
+        try {
+            $order = Order::create([
+                'customer_name' => 'Guest',
+                'table_number' => null,
+                'order_method' => 'kiosk',
+                'payment_method' => 'cash',
+                'total_price' => $validated['total'],
+                'cart' => json_encode($validated['items']),
+            ]);
 
-        // Create order
-        $order = Order::create([
-            'customer_name'  => $validated['customer_name'],
-            'table_number'   => $validated['table_number'],
-            'order_method'   => $validated['order_method'],
-            'payment_method' => $validated['payment_method'],
-            'total'          => collect($cart)->sum(fn($item) => $item['price'] * $item['qty']),
-            'cart'           => $cart, // if you use JSON column
-        ]);
+            foreach ($validated['items'] as $item) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'item_name' => $item['name'],
+                    'price' => $item['price'],
+                    'quantity' => $item['qty'],
+                ]);
+            }
 
-        return redirect()->route('kiosk')->with('success', 'Order placed successfully!');
+            return response()->json(['message' => 'Order placed successfully!']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

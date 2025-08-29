@@ -8,8 +8,10 @@ class KioskController extends Controller
 {
     public function index()
     {
-        $products = Product::select('id','name','price','category')
-            ->orderBy('category')->orderBy('name')->get();
+        // only active products
+        $products = Product::orderBy('category')
+            ->get()
+            ->groupBy('category');
 
         return view('kiosk', compact('products'));
     }

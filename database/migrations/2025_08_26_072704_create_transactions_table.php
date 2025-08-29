@@ -16,7 +16,7 @@ class CreateTransactionsTable extends Migration
             
             $table->string('description');
             $table->decimal('amount', 15, 2);
-            $table->string('type')->comment('e.g. credit, debit'); // Optional
+                    $table->string('type')->default('credit')->change();
             $table->string('reference_number')->nullable();
             
             $table->timestamps();

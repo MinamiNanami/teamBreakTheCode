@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\KioskController;
 use App\Http\Controllers\OrderController;
 use App\Models\Product;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\StaffController;
 
 Route::get('/', function () {
     return Auth::check() ? redirect()->route('index') : redirect()->route('login');
@@ -16,17 +19,10 @@ Route::get('/', function () {
 // Dashboard route
 Route::get('/dashboard', [TransactionController::class, 'wallet'])->name('dashboard');
 
-Route::get('/staff', function () {
-    $products = collect([
-        (object)['name' => 'Trail Mix', 'price' => 3.99, 'category' => 'Food'],
-        (object)['name' => 'Energy Bar', 'price' => 2.49, 'category' => 'Food'],
-        (object)['name' => 'Bottled Water', 'price' => 1.99, 'category' => 'Drinks'],
-        (object)['name' => 'Sports Drink', 'price' => 2.99, 'category' => 'Drinks'],
-        (object)['name' => 'Hiking Boots', 'price' => 129.99, 'category' => 'Gear'],
-    ]);
 
-    return view('staff', compact('products'));
-});
+
+Route::get('/staff', [StaffController::class, 'index']);
+
 
 Route::post('/scan-qr', function (Request $request) {
     $qrCode = $request->input('qr_code');
@@ -36,18 +32,27 @@ Route::post('/scan-qr', function (Request $request) {
 });
 
 // Wallet route - this loads wallet page, named 'wallet.load'
-Route::middleware('auth')->group(function () {
-    Route::get('/wallet', [TransactionController::class, 'wallet'])->name('wallet.load');
-    Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+Route::get('/wallet', [TransactionController::class, 'wallet'])->name('wallet.load');
+Route::post('/wallet/load', [WalletController::class, 'load'])->name('wallet.load');    
+
+Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
+
+Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+Route::get('/kiosk', [KioskController::class, 'index'])->name('kiosk.index');
+
+Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
+Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 
 
-    Route::get('/kiosk', [KioskController::class, 'index'])->name('kiosk');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-});
+Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+
+
+
 
 Route::get('/reset_password', fn() => view('reset_password'))->name('reset_password');
 
